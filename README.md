@@ -1,10 +1,10 @@
 # MicroFrontend Federation Demo
 
-A complete **Module Federation** setup using **React 19**, **Vite**, **TypeScript**, and **pnpm workspaces**.
+A complete **Module Federation** setup using **React 19**, **Vite**, **TypeScript**, and **Git submodules**.
 
 ## 🏗️ Architecture
 
-This monorepo contains 4 applications demonstrating micro frontend architecture:
+This orchestration repository contains 4 applications as **Git submodules**, demonstrating realistic micro frontend architecture:
 
 - **🏠 Host App** (Port 5000) - Main orchestrator application
 - **📦 Products App** (Port 5001) - Product management micro frontend  
