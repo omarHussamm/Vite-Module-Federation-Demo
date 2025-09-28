@@ -1,0 +1,43 @@
+{
+  "name": "microfrontend-federation-demo",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "install:all": "pnpm install -r",
+    
+    "dev:products": "pnpm --filter=mf-products-app dev",
+    "dev:orders": "pnpm --filter=mf-orders-app dev",
+    "dev:users": "pnpm --filter=mf-users-app dev",
+    "dev:host": "pnpm --filter=mf-host-app dev",
+    "dev:remotes": "concurrently \"pnpm run dev:products\" \"pnpm run dev:orders\" \"pnpm run dev:users\"",
+    
+    "build": "pnpm -r build",
+    "build:remotes": "pnpm --filter=mf-products-app build && pnpm --filter=mf-orders-app build && pnpm --filter=mf-users-app build",
+    "build:remotes:watch": "concurrently \"pnpm --filter=mf-products-app build:watch\" \"pnpm --filter=mf-orders-app build:watch\" \"pnpm --filter=mf-users-app build:watch\"",
+    "build:host": "pnpm --filter=mf-host-app build",
+    
+    "preview": "pnpm -r preview",
+    "preview:remotes": "concurrently \"pnpm --filter=mf-products-app preview\" \"pnpm --filter=mf-orders-app preview\" \"pnpm --filter=mf-users-app preview\"",
+    "preview:host": "pnpm --filter=mf-host-app preview",
+    
+    "dev:federation": "pnpm run build:remotes && concurrently \"pnpm run preview:remotes\" \"sleep 3 && pnpm run dev:host\"",
+    "dev:federation:watch": "concurrently \"pnpm run build:remotes:watch\" \"sleep 5 && pnpm run preview:remotes\" \"sleep 8 && pnpm run dev:host\"",
+    "start:federation": "concurrently \"pnpm run preview:remotes\" \"pnpm run preview:host\"",
+    
+    "clean": "pnpm -r exec rm -rf dist node_modules/.vite",
+    "clean:deps": "pnpm -r exec rm -rf node_modules && rm -rf node_modules",
+    
+    "lint": "pnpm -r lint",
+    "type-check": "pnpm -r exec tsc --noEmit",
+    
+    "stop": "npx kill-port 5000 5001 5002 5003"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "kill-port": "^2.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}

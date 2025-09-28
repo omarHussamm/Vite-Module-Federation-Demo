@@ -1,0 +1,12 @@
+[submodule "mf-host-app"]
+	path = mf-host-app
+	url = https://github.com/omarHussamm/mf-host-app.git
+[submodule "mf-products-app"]
+	path = mf-products-app
+	url = https://github.com/omarHussamm/mf-products-app.git
+[submodule "mf-orders-app"]
+	path = mf-orders-app
+	url = https://github.com/omarHussamm/mf-orders-app.git
+[submodule "mf-users-app"]
+	path = mf-users-app
+	url = https://github.com/omarHussamm/mf-users-app.git

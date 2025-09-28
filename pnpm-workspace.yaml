@@ -1,0 +1,5 @@
+packages:
+  - "mf-host-app"
+  - "mf-products-app"
+  - "mf-orders-app"
+  - "mf-users-app"
