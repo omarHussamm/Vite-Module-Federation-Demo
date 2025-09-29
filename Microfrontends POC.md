@@ -892,7 +892,7 @@ pnpm dev:federation  # ✅ Handles everything automatically
 
 ---
 
-## Phase 5: Advanced Features - Error Handling & Loading States
+## Phase 5: Error Handling, Loading States & Business Logic Validation
 
 ### 5.1 Implement Error Boundaries
 
@@ -1020,9 +1020,15 @@ const RemoteLoader: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
 ---
 
-## Phase 6: Lazy Loading with License Validation
+### 5.6 License Validation & Business Logic
 
-### 6.1 Implement License Validation Hook
+**Combined Phase Benefits:**
+- ✅ **Error boundaries** make federation robust and professional
+- ✅ **Loading states** provide excellent user experience during remote loading  
+- ✅ **License validation** demonstrates real-world business logic patterns
+- ✅ **Visible error handling** perfect for live demonstrations of federation challenges
+
+### 5.7 Implement License Validation Hook
 
 typescript
 
@@ -1053,7 +1059,7 @@ export const useLicenseValidation = () => {
 };
 ```
 
-### 6.2 License Management Route
+### 5.8 License Management Route
 
 typescript
 
@@ -1153,7 +1159,7 @@ const LicenseManagement = () => {
 };
 ```
 
-### 6.3 Conditional Remote Loading
+### 5.9 Conditional Remote Loading
 
 typescript
 
@@ -1221,7 +1227,7 @@ const ConditionalRemote: React.FC<Props> = ({ appName, component: Component, pro
 };
 ```
 
-### 6.4 Update Host Router with Lazy Loading
+### 5.10 Update Host Router with Lazy Loading
 
 typescript
 
@@ -1261,124 +1267,15 @@ const AppRouter = () => {
 
 ---
 
-## Phase 7: Environment Configuration for Dual-Mode Operation
+---
 
-### 7.1 Environment Variables Setup
-
-**Each remote `.env.development` (standalone):**
-
-bash
-
-```bash
-VITE_IS_STANDALONE=true
-```
-
-**Each remote `.env.production` (or when used in host):**
-
-bash
-
-```bash
-VITE_IS_STANDALONE=false
-```
-
-### 7.2 Environment-Aware App Setup
-
-typescript
-
-```typescript
-// main.tsx in each remote
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import App from './App';
-
-const isStandalone = import.meta.env.VITE_IS_STANDALONE === 'true';
-
-if (isStandalone) {
-  // Standalone mode: render with router and left navigation
-  const StandaloneApp = () => (
-    <BrowserRouter>
-      <RemoteLayout> {/* Includes left navigation */}
-        <App basePath="" />
-      </RemoteLayout>
-    </BrowserRouter>
-  );
-  
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <StandaloneApp />
-    </StrictMode>
-  );
-}
-
-// Export for federation (no router, no layout)
-export default App;
-```
-
-### 7.3 Environment-Aware Navigation Links
-
-typescript
-
-```typescript
-// components/ProductList.tsx
-import { Link } from "react-router-dom"
-import { useAppContext } from "@/contexts/AppContext"
-
-const ProductList = () => {
-  const { basePath = '' } = useAppContext();
-  const isStandalone = import.meta.env.VITE_IS_STANDALONE === 'true';
-  
-  // Navigation adapts to mode
-  const getNavigationPath = (path: string) => {
-    if (isStandalone) {
-      return path; // Direct path in standalone
-    }
-    return `${basePath}${path}`; // Prefixed path in federation
-  };
-  
-  return (
-    <div style={{ marginBottom: '20px' }}>
-      <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px' }}>Products</h2>
-      <div style={{ display: 'flex', gap: '10px' }}>
-        <Link 
-          to={getNavigationPath('/create')}
-          style={{
-            padding: '10px 15px',
-            backgroundColor: '#007bff',
-            color: 'white',
-            textDecoration: 'none',
-            borderRadius: '4px',
-            fontSize: '14px'
-          }}
-        >
-          Add Product
-        </Link>
-        <Link 
-          to={getNavigationPath('/categories')}
-          style={{
-            padding: '10px 15px',
-            backgroundColor: 'transparent',
-            color: '#007bff',
-            textDecoration: 'none',
-            border: '1px solid #007bff',
-            borderRadius: '4px',
-            fontSize: '14px'
-          }}
-        >
-          Categories
-        </Link>
-      </div>
-      {/* Product list */}
-    </div>
-  );
-};
-```
+**🎯 Note:** Environment-driven STANDALONE configuration (originally planned as Phase 7) was **already implemented in Phase 4** using `VITE_STANDALONE !== 'false'` pattern. This provides smart defaults and flexible deployment without code changes.
 
 ---
 
-## Phase 8: Production Build & Deployment
+## Phase 6: Production Build & Deployment
 
-### 8.1 Simple Build All Applications
+### 6.1 Simple Build All Applications
 
 ```bash
 # From main repository root
@@ -1389,47 +1286,47 @@ pnpm build:all  # ✅ Builds remotes then host in correct order
 
 ```bash
 # Build each remote first
-cd products-app && pnpm build
-cd orders-app && pnpm build  
-cd users-app && pnpm build
+cd mf-products-app && pnpm build:federation
+cd mf-orders-app && pnpm build:federation
+cd mf-users-app && pnpm build:federation
 
 # Build host last  
-cd host-app && pnpm build
+cd mf-host-app && pnpm build
 ```
 
-### 8.2 Simple Deployment - Serve Built Applications
+### 6.2 Simple Deployment - Serve Built Applications
 
 ```bash
 # From main repository root  
-pnpm preview:all  # ✅ Serves all apps on their respective ports
+pnpm start:federation  # ✅ Serves all apps on their respective ports
 ```
 
 **OR serve individually:**
 
 ```bash
 # Terminal 1-3: Serve built remotes
-cd products-app && pnpm preview  # Serves on port 5001
-cd orders-app && pnpm preview    # Serves on port 5002  
-cd users-app && pnpm preview     # Serves on port 5003
+cd mf-products-app && pnpm preview --port 5001
+cd mf-orders-app && pnpm preview --port 5002
+cd mf-users-app && pnpm preview --port 5003
 
 # Terminal 4: Serve host
-cd host-app && pnpm preview      # Serves on port 5000
+cd mf-host-app && pnpm preview --port 5000
 ```
 
 **Alternative: Use any static file server:**
 
 ```bash
 # Using serve (pnpm install -g serve)  
-cd products-app/dist && serve -p 5001
-cd orders-app/dist && serve -p 5002
-cd users-app/dist && serve -p 5003
-cd host-app/dist && serve -p 5000
+cd mf-products-app/dist && serve -p 5001
+cd mf-orders-app/dist && serve -p 5002
+cd mf-users-app/dist && serve -p 5003
+cd mf-host-app/dist && serve -p 5000
 
 # OR using Python
-cd products-app/dist && python -m http.server 5001
+cd mf-products-app/dist && python -m http.server 5001
 ```
 
-### 8.3 Git Submodules Management
+### 6.3 Git Submodules Management
 
 **Cloning the main project:**
 
@@ -1478,7 +1375,7 @@ rm -rf products-app     # Remove directory
 git submodule add git@github.com:yourusername/mf-products-app products-app
 ```
 
-### 8.4 Production Vite Configuration
+### 6.4 Production Vite Configuration
 
 **Production considerations for remotes:**
 
@@ -1526,7 +1423,7 @@ export default defineConfig({
 })
 ```
 
-### 8.5 Deployment Summary
+### 6.5 Deployment Summary
 
 **Simple Production Deployment:**
 1. **Clone project**: `git clone --recursive` to get all submodules
@@ -1551,11 +1448,9 @@ export default defineConfig({
 1. **Demo standalone apps** → Show **individual Git repos** + **left navigation** with simple CSS + **pnpm dev workflow**
 2. **Create host + submodules** → Show **Git submodule setup** + **main repo orchestration** + **development reality check** (why `pnpm dev` doesn't work for federation)
 3. **Fix routing & navigation** → Remove left nav from remotes, centralize router + **show root pnpm scripts** for federation development + **STANDALONE flag dual-mode** + **host architecture refactoring**
-4. **Add TypeScript interfaces + state sharing** → Shared interfaces across federation + Props-based communication with **useContext** in remotes + **pnpm workspace benefits**
-5. **Add error handling** → Error boundaries + loading states with simple styling
-6. **License validation** → Lazy loading + business logic with **bought** and **expiry** validation
-7. **Environment configuration** → **Dual-mode operation** (standalone with left nav vs federated)
-8. **Production deployment** → **Git submodules management** + **pnpm build/deploy scripts**
+4. **Add authentication & state sharing** → User authentication + Props-based communication with **useContext** in remotes + **environment-driven STANDALONE flag** + **pnpm workspace benefits**
+5. **Add error handling & business logic** → Error boundaries + loading states + license validation with **bought** and **expiry** validation + **visible error demonstrations**
+6. **Production deployment** → **Git submodules management** + **pnpm build/deploy scripts** + **performance optimization**
 
 ## Key Design Decisions:
 
@@ -1564,16 +1459,16 @@ export default defineConfig({
 - ✅ **Root orchestration scripts** - Single commands to manage complex federation development workflow
 - ✅ **Development workflow education** - Show why federation development is different from normal Vite
 - ✅ **Live coding reality** - Demonstrate the `build + preview` requirement during federation setup
-- ✅ **STANDALONE flag dual-mode** - Single boolean flag enables standalone development and federated consumption
+- ✅ **Environment-driven STANDALONE flag** - `VITE_STANDALONE !== 'false'` enables flexible dual-mode operation (IMPLEMENTED)
 - ✅ **Professional architecture** - Host refactored with pages/components/layouts structure matching remotes
 - ✅ **BasePath via props and context** for navigation (clean and accessible everywhere)
-- ✅ **Left navigation in remotes initially** to contrast with host's top navigation  
-- ✅ **Profile and license management in dropdown** at top-right for realistic app UX
-- ✅ **useContext in remotes** for clean props access throughout components
-- ✅ **License validation with bought + expiry** for realistic business logic
+- ✅ **User authentication & state sharing** - Single source of truth with real-time synchronization (IMPLEMENTED)
+- ✅ **AppContext pattern** - Scalable state management from navigation to user data (IMPLEMENTED)
+- ✅ **Visual feedback** - Clear indicators that federation and state sharing are working
+- ✅ **License validation with bought + expiry** - Realistic business logic for enterprise demos
+- ✅ **Error boundaries** - Professional error handling with visible demonstrations
 - ✅ **Simple CSS styling** to focus on micro frontend concepts, not UI complexity
-- ✅ **Environment variables control dual-mode** without needing VITE_BASE_PATH
-- ✅ **Git submodules for version control** - Realistic multi-team development approach
+- ✅ **Git submodules for version control** - Realistic multi-team development approach (IMPLEMENTED)
 
 ## Live Coding Teaching Moments:
 
@@ -1582,10 +1477,12 @@ export default defineConfig({
 3. **"Normal Vite works great standalone!"** - Individual app development experience
 4. **"Wait, federation broke our dev workflow!"** - Reality check moment  
 5. **"Ah, federation needs built files!"** - Understanding why `build + preview` is required
-6. **"One flag switches everything!"** - STANDALONE flag demonstration (set true for standalone, false for federation)
-7. **"Let's make the host professional!"** - Refactoring from single giant App.tsx to clean pages structure
-8. **"Root scripts save the day!"** - Show pnpm workspace orchestration benefits
-9. **"Type safety across federation!"** - Shared TypeScript interfaces prevent runtime errors
-10. **"Teams work independently, deploy together!"** - Git submodules benefits
+6. **"One environment variable switches everything!"** - `VITE_STANDALONE` flag demonstration ✅ **IMPLEMENTED**
+7. **"Let's make the host professional!"** - Refactoring from single giant App.tsx to clean pages structure ✅ **IMPLEMENTED**
+8. **"Root scripts save the day!"** - Show pnpm workspace orchestration benefits ✅ **IMPLEMENTED**
+9. **"Who's logged in? Everyone should know!"** - User authentication and state sharing across federation ✅ **IMPLEMENTED**
+10. **"Show me the errors!"** - Error boundaries make federation failures visible and professional
+11. **"Business logic in action!"** - License validation demonstrates real-world federation challenges
+12. **"Teams work independently, deploy together!"** - Git submodules benefits ✅ **IMPLEMENTED**
 
 This provides a complete journey showing **realistic team structure** (individual repos), **practical development workflow** (pnpm workspaces + orchestration), **UI/UX evolution** (navigation patterns), **technical architecture evolution** (from distributed to centralized routing), and **real-world deployment** (Git submodules management)!
